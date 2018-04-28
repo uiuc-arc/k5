@@ -140,6 +140,19 @@ public class ConstrainedTerm extends JavaSymbolicObject {
             return null;
         }
 
+        context.setTopConstraint(data.constraint);
+        for (Equality equality : constraint.equalities()) {
+            Term equalityTerm = equality.toK();
+            Term evaluatedTerm = equalityTerm.evaluate(context);
+            if (!evaluatedTerm.equals(equalityTerm)) {
+                constraint = constraint.addAll(Collections.singletonList(evaluatedTerm));
+                if (constraint == null || constraint.isFalse()) {
+                    return null;
+                }
+            }
+        }
+        context.setTopConstraint(null);
+
         /* apply pattern folding */
         constraint = constraint.simplifyModuloPatternFolding(context)
                 .add(constrainedTerm.data.constraint)
