@@ -140,19 +140,6 @@ public class ConstrainedTerm extends JavaSymbolicObject {
             return null;
         }
 
-        context.setTopConstraint(data.constraint);
-        for (Equality equality : constraint.equalities()) {
-            Term equalityTerm = equality.toK();
-            Term evaluatedTerm = equalityTerm.evaluate(context);
-            if (!evaluatedTerm.equals(equalityTerm)) {
-                constraint = constraint.addAll(Collections.singletonList(evaluatedTerm));
-                if (constraint == null || constraint.isFalse()) {
-                    return null;
-                }
-            }
-        }
-        context.setTopConstraint(null);
-
         /* apply pattern folding */
         constraint = constraint.simplifyModuloPatternFolding(context)
                 .add(constrainedTerm.data.constraint)
@@ -170,6 +157,18 @@ public class ConstrainedTerm extends JavaSymbolicObject {
 
         context.setTopConstraint(data.constraint);
         constraint = (ConjunctiveFormula) constraint.evaluate(context);
+
+        // evaluate/simplify equalities
+        for (Equality equality : constraint.equalities()) {
+            Term equalityTerm = equality.toK();
+            Term evaluatedTerm = equalityTerm.evaluate(context);
+            if (!evaluatedTerm.equals(equalityTerm)) {
+                constraint = constraint.addAll(Collections.singletonList(evaluatedTerm));
+                if (constraint == null || constraint.isFalse()) {
+                    return null;
+                }
+            }
+        }
 
         Set<Variable> rightOnlyVariables = Sets.difference(constraint.variableSet(), Sets.union(variableSet(), termContext().getInitialVariables()));
         constraint = constraint.orientSubstitution(rightOnlyVariables);
