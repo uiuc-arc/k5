@@ -155,10 +155,8 @@ public class ConstrainedTerm extends JavaSymbolicObject {
             }
         }
 
-        context.setTopConstraint(data.constraint);
-        constraint = (ConjunctiveFormula) constraint.evaluate(context);
-
         // evaluate/simplify equalities
+        context.setTopConstraint(data.constraint);
         for (Equality equality : constraint.equalities()) {
             Term equalityTerm = equality.toK();
             Term evaluatedTerm = equalityTerm.evaluate(context);
@@ -169,6 +167,14 @@ public class ConstrainedTerm extends JavaSymbolicObject {
                 }
             }
         }
+        context.setTopConstraint(null);
+        constraint = constraint.simplifyModuloPatternFolding(context);
+        if (constraint.isFalse()) {
+            return null;
+        }
+
+        context.setTopConstraint(data.constraint);
+        constraint = (ConjunctiveFormula) constraint.evaluate(context);
 
         Set<Variable> rightOnlyVariables = Sets.difference(constraint.variableSet(), Sets.union(variableSet(), termContext().getInitialVariables()));
         constraint = constraint.orientSubstitution(rightOnlyVariables);
