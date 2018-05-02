@@ -716,6 +716,8 @@ public class KItem extends Term implements KItemRepresentation, HasGlobalContext
             return kLabel + "()";
         } else if(label.equals("{_|_}_EVM")) {
             return kLabel + "()";
+        } else if(label.equals("<callState>-fragment")){
+            return kLabel + "()";
         }
         else {
             return kLabel + "(" + kList.toString() + ")";

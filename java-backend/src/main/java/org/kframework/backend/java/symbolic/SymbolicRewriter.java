@@ -675,6 +675,7 @@ public class SymbolicRewriter {
             guarded = true;
         }
 
+        System.out.println("Prove steps: " + step);
         return proofResults;
     }
 
